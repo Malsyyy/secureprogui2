@@ -111,8 +111,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="decryptmenu.cpp" />
-    <ClCompile Include="encryptmenu.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -123,20 +121,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="decryptmenu.h">
-      <FileType>CppForm</FileType>
-    </ClInclude>
-    <ClInclude Include="encryptmenu.h">
-      <FileType>CppForm</FileType>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="decryptmenu.resx">
-      <DependentUpon>decryptmenu.h</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="encryptmenu.resx">
-      <DependentUpon>encryptmenu.h</DependentUpon>
-    </EmbeddedResource>
+    <ClInclude Include="headers\decryptmenu.h" />
+    <ClInclude Include="headers\encryptmenu.h" />
+    <ClInclude Include="headers\main.h" />
+    <ClInclude Include="headers\mainmenu.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

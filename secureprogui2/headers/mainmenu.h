@@ -91,11 +91,8 @@ namespace WindowsForm {
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
 			this->ClientSize = System::Drawing::Size(537, 436);
 			this->Controls->Add(this->exitBtn);
-			this->Controls->Add(this->LogoutBtn);
-			this->Controls->Add(this->SaveBtn);
 			this->Controls->Add(this->decryptBtn);
 			this->Controls->Add(this->EncryptBtn);
-			this->Controls->Add(this->label3);
 			this->MinimumSize = System::Drawing::Size(553, 475);
 			this->Name = L"mainMenu";
 			this->Text = L"mainMenu";

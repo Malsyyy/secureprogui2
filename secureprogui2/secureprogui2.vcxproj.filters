@@ -18,18 +18,18 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="encryptmenu.cpp">
-      <Filter>Header Files</Filter>
-    </ClCompile>
-    <ClCompile Include="decryptmenu.cpp">
-      <Filter>Header Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="encryptmenu.h">
+    <ClInclude Include="headers\decryptmenu.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="decryptmenu.h">
+    <ClInclude Include="headers\encryptmenu.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\main.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\mainmenu.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
