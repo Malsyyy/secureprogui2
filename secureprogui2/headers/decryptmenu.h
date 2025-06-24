@@ -1,202 +1,144 @@
-#pragma once  
+// decryptMenu.h
+#pragma once
 
-#include <msclr/marshal_cppstd.h>
-#include <fstream>
-#include <sstream>
-#include <openssl/evp.h>
+#define OPENSSL_API_COMPAT 0x10100000L
 #include <openssl/aes.h>
+#include <fstream>
 #include <vector>
+#include <msclr/marshal_cppstd.h>
+
+using namespace System;
+using namespace System::Windows::Forms;
 
 namespace WindowsForm {
 
-    public ref class decryptMenu : public System::Windows::Forms::Form
-    {
+    public ref class decryptMenu : public Form {
     public:
-        decryptMenu(void)
-        {
+        decryptMenu() {
             InitializeComponent();
         }
 
     protected:
-        ~decryptMenu()
-        {
-            if (components)
-            {
-                delete components;
-            }
+        ~decryptMenu() {
+            if (components) delete components;
         }
 
     private:
         System::ComponentModel::Container^ components;
-        System::Windows::Forms::Label^ welcomeMsg;
-        System::Windows::Forms::Button^ browseBtn;
-        System::Windows::Forms::Button^ decryptBtn;
-        System::Windows::Forms::Button^ logoutBtn;
-        System::Windows::Forms::Button^ exitBtn;
-        System::Windows::Forms::RichTextBox^ fileBox;
-        System::Windows::Forms::RichTextBox^ fileContent;
-        System::Windows::Forms::OpenFileDialog^ openFileDialog;
-        System::Windows::Forms::SaveFileDialog^ saveFileDialog;
-        System::String^ selectedFilePath;
+        Button^ browseBtn;
+        Button^ decryptBtn;
+        RichTextBox^ outputBox; // Changed from fileBox to outputBox for clarity in decryption
+        OpenFileDialog^ openFileDialog;
+        String^ selectedFilePath;
 
-#pragma region Windows Form Designer generated code  
-        void InitializeComponent(void)
-        {
-            this->welcomeMsg = (gcnew System::Windows::Forms::Label());
-            this->browseBtn = (gcnew System::Windows::Forms::Button());
-            this->decryptBtn = (gcnew System::Windows::Forms::Button());
-            this->logoutBtn = (gcnew System::Windows::Forms::Button());
-            this->exitBtn = (gcnew System::Windows::Forms::Button());
-            this->openFileDialog = (gcnew System::Windows::Forms::OpenFileDialog());
-            this->saveFileDialog = (gcnew System::Windows::Forms::SaveFileDialog());
-            this->fileBox = (gcnew System::Windows::Forms::RichTextBox());
-            this->fileContent = (gcnew System::Windows::Forms::RichTextBox());
-            this->SuspendLayout();
-            //  
-            // welcomeMsg  
-            //  
-            this->welcomeMsg->Location = System::Drawing::Point(58, 220);
-            this->welcomeMsg->Name = L"welcomeMsg";
-            this->welcomeMsg->Size = System::Drawing::Size(0, 100);
-            this->welcomeMsg->TabIndex = 4;
-            //  
-            // browseBtn  
-            //  
-            this->browseBtn->Anchor = System::Windows::Forms::AnchorStyles::Top;
-            this->browseBtn->Location = System::Drawing::Point(472, 188);
-            this->browseBtn->Name = L"browseBtn";
-            this->browseBtn->Size = System::Drawing::Size(164, 49);
-            this->browseBtn->TabIndex = 5;
-            this->browseBtn->Text = L"Browse For A file:";
-            this->browseBtn->Click += gcnew System::EventHandler(this, &decryptMenu::browseBtn_Click);
-            //  
-            // decryptBtn  
-            //  
-            this->decryptBtn->Anchor = System::Windows::Forms::AnchorStyles::Top;
-            this->decryptBtn->Location = System::Drawing::Point(250, 375);
-            this->decryptBtn->Name = L"decryptBtn";
-            this->decryptBtn->Size = System::Drawing::Size(164, 49);
-            this->decryptBtn->TabIndex = 6;
-            this->decryptBtn->Text = L"Decrypt File";
-            this->decryptBtn->Click += gcnew System::EventHandler(this, &decryptMenu::decryptBtn_Click);
-            //  
-            // exitBtn  
-            //  
-            this->exitBtn->Anchor = System::Windows::Forms::AnchorStyles::Top;
-            this->exitBtn->Location = System::Drawing::Point(250, 475);
-            this->exitBtn->Name = L"exitBtn";
-            this->exitBtn->Size = System::Drawing::Size(169, 49);
-            this->exitBtn->TabIndex = 8;
-            this->exitBtn->Text = L"Exit";
-            this->exitBtn->Click += gcnew System::EventHandler(this, &decryptMenu::exitBtn_Click);
-            //  
-            // fileBox  
-            //  
-            this->fileBox->Location = System::Drawing::Point(169, 192);
-            this->fileBox->Name = L"fileBox";
-            this->fileBox->Size = System::Drawing::Size(297, 45);
-            this->fileBox->TabIndex = 9;
-            this->fileBox->Text = L"";
-            //  
-            // fileContent  
-            //  
-            this->fileContent->Location = System::Drawing::Point(169, 243);
-            this->fileContent->Name = L"fileContent";
-            this->fileContent->Size = System::Drawing::Size(297, 100);
-            this->fileContent->TabIndex = 10;
-            this->fileContent->Text = L"";
-            this->fileContent->ReadOnly = true;
-            //  
-            // decryptMenu  
-            //  
-            this->ClientSize = System::Drawing::Size(807, 589);
-            this->Controls->Add(this->fileBox);
-            this->Controls->Add(this->fileContent);
-            this->Controls->Add(this->welcomeMsg);
-            this->Controls->Add(this->browseBtn);
-            this->Controls->Add(this->decryptBtn);
-            this->Controls->Add(this->logoutBtn);
-            this->Controls->Add(this->exitBtn);
-            this->Name = L"decryptMenu";
+#pragma region Designer Code
+        void InitializeComponent(void) {
+            browseBtn = gcnew Button();
+            decryptBtn = gcnew Button();
+            outputBox = gcnew RichTextBox();
+            openFileDialog = gcnew OpenFileDialog();
+
+            browseBtn->Text = L"Browse to Decrypt";
+            browseBtn->Location = Drawing::Point(50, 30);
+            browseBtn->Click += gcnew EventHandler(this, &decryptMenu::browseBtn_Click);
+
+            decryptBtn->Text = L"Decrypt";
+            decryptBtn->Location = Drawing::Point(200, 30);
+            decryptBtn->Click += gcnew EventHandler(this, &decryptMenu::decryptBtn_Click);
+
+            outputBox->Location = Drawing::Point(50, 80);
+            outputBox->Size = Drawing::Size(300, 100);
+            outputBox->ReadOnly = true; // Make the output box read-only
+
+            this->Controls->Add(browseBtn);
+            this->Controls->Add(decryptBtn);
+            this->Controls->Add(outputBox);
+            this->ClientSize = Drawing::Size(400, 220);
             this->Text = L"Decrypt Menu";
-            this->ResumeLayout(false);
         }
-#pragma endregion  
+#pragma endregion
 
-    private: System::Void browseBtn_Click(System::Object^ sender, System::EventArgs^ e) {
-        openFileDialog->Title = "Select a file to upload";
-        openFileDialog->Filter = "Enc Files (*.enc)|*.enc";
-
-        if (openFileDialog->ShowDialog() == System::Windows::Forms::DialogResult::OK) {
-            selectedFilePath = openFileDialog->FileName;
-            fileBox->Text = selectedFilePath;
-
-            try {
-                msclr::interop::marshal_context context;
-                std::string nativePath = context.marshal_as<std::string>(selectedFilePath);
-                std::ifstream inFile(nativePath, std::ios::binary);
-                std::stringstream buffer;
-                buffer << inFile.rdbuf();
-                std::string encContent = buffer.str();
-                fileContent->Text = gcnew System::String(encContent.c_str());
-            }
-            catch (...) {
-                System::Windows::Forms::MessageBox::Show("Failed to read file content.");
+        System::Void browseBtn_Click(System::Object^, System::EventArgs^) {
+            openFileDialog->Filter = "Encrypted Files (*.enc)|*.enc";
+            if (openFileDialog->ShowDialog() == System::Windows::Forms::DialogResult::OK) {
+                selectedFilePath = openFileDialog->FileName;
+                outputBox->Text = selectedFilePath; // Display selected file path in outputBox
             }
         }
-    }
 
-    private: System::Void decryptBtn_Click(System::Object^ sender, System::EventArgs^ e) {
-        if (System::String::IsNullOrEmpty(selectedFilePath)) {
-            System::Windows::Forms::MessageBox::Show("Please select a file first.");
-            return;
-        }
-
-        saveFileDialog->Title = "Save Decrypted File As";
-        saveFileDialog->Filter = "Text Files (*.txt)|*.txt|All Files (*.*)|*.*";
-        if (saveFileDialog->ShowDialog() != System::Windows::Forms::DialogResult::OK) {
-            return;
-        }
-        System::String^ savePath = saveFileDialog->FileName;
-
-        unsigned char key[32] = { 0 };
-        unsigned char iv[16] = { 0 };
-
-        msclr::interop::marshal_context context;
-        std::string nativePath = context.marshal_as<std::string>(selectedFilePath);
-
-        std::ifstream inFile(nativePath, std::ios::binary);
-        std::vector<unsigned char> encData;
-        if (inFile) {
-            inFile.seekg(0, std::ios::end);
-            std::streamsize size = inFile.tellg();
-            inFile.seekg(0, std::ios::beg);
-            if (size > 0) {
-                encData.resize(static_cast<size_t>(size));
-                inFile.read(reinterpret_cast<char*>(encData.data()), size);
+        System::Void decryptBtn_Click(System::Object^, System::EventArgs^) {
+            if (String::IsNullOrEmpty(selectedFilePath)) {
+                MessageBox::Show("Please select a file first.");
+                return;
             }
+
+            msclr::interop::marshal_context context;
+            std::string path = context.marshal_as<std::string>(selectedFilePath);
+            std::ifstream in(path, std::ios::binary);
+            if (!in) {
+                MessageBox::Show("Failed to open file.");
+                return;
+            }
+
+            // Read entire encrypted file content
+            std::vector<unsigned char> enc((std::istreambuf_iterator<char>(in)), {});
+            in.close();
+
+            if (enc.size() < AES_BLOCK_SIZE) { // Check if file is even large enough for IV
+                MessageBox::Show("File too small to contain IV and ciphertext.");
+                return;
+            }
+
+            unsigned char key[16] = { 'e','x','a','m','p','l','e','k','e','y','1','2','3','4','5','6' };
+            unsigned char iv[AES_BLOCK_SIZE];
+
+            // Read the IV from the beginning of the encrypted file
+            memcpy(iv, enc.data(), AES_BLOCK_SIZE);
+
+            // Extract the ciphertext (data after the IV)
+            std::vector<unsigned char> cipher(enc.begin() + AES_BLOCK_SIZE, enc.end());
+            std::vector<unsigned char> plain(cipher.size());
+
+            AES_KEY decKey;
+            // For CFB mode, the encryption key schedule is used for both encryption and decryption
+            AES_set_encrypt_key(key, 128, &decKey);
+            int num = 0; // Initialize num to 0 for the start of the decryption stream
+
+            // Perform decryption; 'iv' will be modified by this call (similar to encryption)
+            AES_cfb128_encrypt(cipher.data(), plain.data(), cipher.size(), &decKey, iv, &num, AES_DECRYPT);
+
+            SaveFileDialog^ saveDialog = gcnew SaveFileDialog();
+            saveDialog->Filter = "Text Files (*.txt)|*.txt|All Files (*.*)|*.*";
+            // Set default filename to original filename with a _decrypted suffix
+            String^ originalFileName = System::IO::Path::GetFileNameWithoutExtension(selectedFilePath);
+            saveDialog->FileName = originalFileName + "_decrypted.txt";
+
+            if (saveDialog->ShowDialog() != System::Windows::Forms::DialogResult::OK) return;
+
+            String^ saveFilePath = saveDialog->FileName;
+            std::string savePath = context.marshal_as<std::string>(saveFilePath);
+            std::ofstream out(savePath, std::ios::binary); // Use binary mode for consistency
+
+            // Write the decrypted plaintext to the new file
+            out.write(reinterpret_cast<char*>(plain.data()), plain.size());
+            out.close();
+
+            // Display a portion of the decrypted content in the output box (for text files)
+            // Be careful if the decrypted data contains null characters or is very large.
+            // For general binary files, this display might be misleading.
+            if (!plain.empty()) {
+                // Limit display to prevent UI overload if file is huge or binary garbage
+                int displaySize = Math::Min(static_cast<int>(plain.size()), 1024); // Display max 1KB
+                outputBox->Text = gcnew String(reinterpret_cast<char*>(plain.data()), 0, displaySize);
+                if (plain.size() > 1024) {
+                    outputBox->AppendText("\n\n(Content truncated for display)");
+                }
+            }
+            else {
+                outputBox->Text = "Decrypted file is empty.";
+            }
+
+            MessageBox::Show("Decryption complete and file saved.");
         }
-        inFile.close();
-
-        std::vector<unsigned char> decData(encData.size() + AES_BLOCK_SIZE);
-        int outLen1 = 0, outLen2 = 0;
-
-        EVP_CIPHER_CTX* ctx = EVP_CIPHER_CTX_new();
-        EVP_DecryptInit_ex(ctx, EVP_aes_256_cbc(), NULL, key, iv);
-        EVP_DecryptUpdate(ctx, decData.data(), &outLen1, encData.data(), static_cast<int>(encData.size()));
-        EVP_DecryptFinal_ex(ctx, decData.data() + outLen1, &outLen2);
-        EVP_CIPHER_CTX_free(ctx);
-
-        std::string nativeSavePath = context.marshal_as<std::string>(savePath);
-        std::ofstream outFile(nativeSavePath, std::ios::binary);
-        outFile.write(reinterpret_cast<char*>(decData.data()), outLen1 + outLen2);
-        outFile.close();
-
-        System::Windows::Forms::MessageBox::Show("File decrypted and saved successfully.");
-    }
-
-    private: System::Void exitBtn_Click(System::Object^ sender, System::EventArgs^ e) {
-        this->Close();
-    }
     };
 }

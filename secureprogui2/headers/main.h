@@ -1,3 +1,4 @@
+// main header code
 #pragma once
 
 namespace secureprogui2 {
@@ -34,7 +35,7 @@ namespace secureprogui2 {
         {
             this->components = gcnew System::ComponentModel::Container();
             this->Size = System::Drawing::Size(300, 300);
-            this->Text = L"Main Menu";
+            this->Text = L"Main File (Placeholder)"; // Changed title for clarity
             this->Padding = System::Windows::Forms::Padding(0);
             this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
         }

@@ -1,3 +1,4 @@
+﻿// encryptMenu.h
 #pragma once
 
 #define OPENSSL_API_COMPAT 0x10100000L
@@ -14,192 +15,110 @@ namespace WindowsForm {
 
     public ref class encryptMenu : public Form {
     public:
-        encryptMenu(void) {
+        encryptMenu() {
             InitializeComponent();
         }
 
     protected:
         ~encryptMenu() {
-            if (components) {
-                delete components;
-            }
+            if (components) delete components;
         }
 
     private:
         System::ComponentModel::Container^ components;
-        Label^ welcomeMsg;
         Button^ browseBtn;
         Button^ encryptBtn;
-        Button^ logoutBtn;
-        Button^ exitBtn;
         RichTextBox^ fileBox;
-        RichTextBox^ fileContent;
         OpenFileDialog^ openFileDialog;
+        String^ selectedFilePath;
 
-#pragma region Windows Form Designer generated code  
+#pragma region Designer Code
         void InitializeComponent(void) {
-            this->welcomeMsg = gcnew Label();
-            this->browseBtn = gcnew Button();
-            this->encryptBtn = gcnew Button();
-            this->logoutBtn = gcnew Button();
-            this->exitBtn = gcnew Button();
-            this->fileBox = gcnew RichTextBox();
-            this->fileContent = gcnew RichTextBox();
-            this->openFileDialog = gcnew OpenFileDialog();
-            this->SuspendLayout();
-            //
-            // welcome msg
-            //
-            this->welcomeMsg->Location = Drawing::Point(58, 220);
-            this->welcomeMsg->Name = L"welcomeMsg";
-            this->welcomeMsg->Size = Drawing::Size(0, 100);
-            this->welcomeMsg->TabIndex = 4;
-            //
-            // browseBtn
-            //
-            this->browseBtn->Location = Drawing::Point(472, 188);
-            this->browseBtn->Name = L"browseBtn";
-            this->browseBtn->Size = Drawing::Size(164, 49);
-            this->browseBtn->Text = L"Browse File";
-            this->browseBtn->Click += gcnew EventHandler(this, &encryptMenu::browseBtn_Click);
-            //
-            // encryptBtn
-            //
-            this->encryptBtn->Location = Drawing::Point(250, 375);
-            this->encryptBtn->Name = L"encryptBtn";
-            this->encryptBtn->Size = Drawing::Size(164, 49);
-            this->encryptBtn->Text = L"Encrypt";
-            this->encryptBtn->Click += gcnew EventHandler(this, &encryptMenu::encryptBtn_Click);
-            //
-            // exitBtn
-            //
-            this->exitBtn->Location = Drawing::Point(250, 475);
-            this->exitBtn->Name = L"exitBtn";
-            this->exitBtn->Size = Drawing::Size(169, 49);
-            this->exitBtn->Text = L"Exit";
-			this->exitBtn->Click += gcnew EventHandler(this, &encryptMenu::exitBtn_Click);
-            //
-            // fileBox
-            //
-            this->fileBox->Location = Drawing::Point(169, 192);
-            this->fileBox->Size = Drawing::Size(297, 45);
-            this->fileBox->ReadOnly = true;
-            //
-            // fileContent
-            //
-            this->fileContent->Location = Drawing::Point(169, 243);
-            this->fileContent->Size = Drawing::Size(297, 100);
-            this->fileContent->ReadOnly = true;
-            //
-            // Form
-            //
-            this->ClientSize = Drawing::Size(807, 589);
-            this->Controls->Add(this->fileBox);
-            this->Controls->Add(this->fileContent);
-            this->Controls->Add(this->welcomeMsg);
-            this->Controls->Add(this->browseBtn);
-            this->Controls->Add(this->encryptBtn);
-            this->Controls->Add(this->exitBtn);
-            this->Name = L"encryptMenu";
+            browseBtn = gcnew Button();
+            encryptBtn = gcnew Button();
+            fileBox = gcnew RichTextBox();
+            openFileDialog = gcnew OpenFileDialog();
+
+            browseBtn->Text = L"Browse";
+            browseBtn->Location = Drawing::Point(50, 30);
+            browseBtn->Click += gcnew EventHandler(this, &encryptMenu::browseBtn_Click);
+
+            encryptBtn->Text = L"Encrypt";
+            encryptBtn->Location = Drawing::Point(150, 30);
+            encryptBtn->Click += gcnew EventHandler(this, &encryptMenu::encryptBtn_Click);
+
+            fileBox->Location = Drawing::Point(50, 80);
+            fileBox->Size = Drawing::Size(300, 30);
+            fileBox->ReadOnly = true;
+
+            this->Controls->Add(browseBtn);
+            this->Controls->Add(encryptBtn);
+            this->Controls->Add(fileBox);
+            this->ClientSize = Drawing::Size(400, 200);
             this->Text = L"Encrypt Menu";
-            this->ResumeLayout(false);
         }
 #pragma endregion
 
-    private:
-        void SetFileBoxPath(String^ filePath) {
-            fileBox->Text = filePath;
-            Clipboard::SetText(filePath);
-        }
-
-        void ShowSelectedFileContent(String^ filePath) {
-            try {
-                std::ifstream inputFile(msclr::interop::marshal_as<std::string>(filePath), std::ios::binary);
-                if (!inputFile) {
-                    fileContent->Text = "Failed to open file.";
-                    return;
-                }
-                std::string content((std::istreambuf_iterator<char>(inputFile)), std::istreambuf_iterator<char>());
-                inputFile.close();
-                fileContent->Text = gcnew String(content.c_str());
-            }
-            catch (...) {
-                fileContent->Text = "Error reading file.";
-            }
-        }
-            
-        bool SaveEncryptedFileToUserLocation(const std::vector<unsigned char>& encryptedData) {
-            SaveFileDialog^ saveFileDialog = gcnew SaveFileDialog();
-            saveFileDialog->Title = "Save Encrypted File As";
-            saveFileDialog->Filter = "Encrypted Files (*.enc)|*.enc|All Files (*.*)|*.*";
-            saveFileDialog->DefaultExt = "enc";
-            if (saveFileDialog->ShowDialog() == System::Windows::Forms::DialogResult::OK) {
-                std::string savePath = msclr::interop::marshal_as<std::string>(saveFileDialog->FileName);
-                std::ofstream outputFile(savePath, std::ios::binary);
-                if (!outputFile) {
-                    MessageBox::Show("Failed to save file.", "Error", MessageBoxButtons::OK, MessageBoxIcon::Error);
-                    return false;
-                }
-                outputFile.write(reinterpret_cast<const char*>(encryptedData.data()), encryptedData.size());
-                outputFile.close();
-                return true;
-            }
-            return false;
-        }
-
-        System::Void browseBtn_Click(System::Object^ sender, System::EventArgs^ e) {
-            openFileDialog->Title = "Select a file to upload";
-            openFileDialog->Filter = "Text Files (*.txt)|*.txt|JSON Files (*.json)|*.json|CSV Files (*.csv)|*.csv|All Files (*.*)|*.*";
-
+        System::Void browseBtn_Click(System::Object^, System::EventArgs^) {
+            openFileDialog->Filter = "Text Files (*.txt)|*.txt|All Files (*.*)|*.*";
             if (openFileDialog->ShowDialog() == System::Windows::Forms::DialogResult::OK) {
-                String^ filePath = openFileDialog->FileName;
-                SetFileBoxPath(filePath);
-                ShowSelectedFileContent(filePath);
+                selectedFilePath = openFileDialog->FileName;
+                fileBox->Text = selectedFilePath;
             }
         }
 
-        System::Void encryptBtn_Click(System::Object^ sender, System::EventArgs^ e) {
-            String^ filePath = fileBox->Text;
-            if (String::IsNullOrEmpty(filePath)) {
-                MessageBox::Show("Please select a file.", "Error", MessageBoxButtons::OK, MessageBoxIcon::Error);
+        System::Void encryptBtn_Click(System::Object^, System::EventArgs^) {
+            if (String::IsNullOrEmpty(selectedFilePath)) {
+                MessageBox::Show("Select a file first.");
                 return;
             }
 
-            std::ifstream inputFile(msclr::interop::marshal_as<std::string>(filePath), std::ios::binary);
-            if (!inputFile) {
-                MessageBox::Show("Could not open file.", "Error", MessageBoxButtons::OK, MessageBoxIcon::Error);
+            msclr::interop::marshal_context context;
+            std::string path = context.marshal_as<std::string>(selectedFilePath);
+            std::ifstream in(path, std::ios::binary);
+            if (!in) {
+                MessageBox::Show("Failed to open file.");
                 return;
             }
 
-            std::vector<unsigned char> fileData((std::istreambuf_iterator<char>(inputFile)), std::istreambuf_iterator<char>());
-            inputFile.close();
+            std::vector<unsigned char> plain((std::istreambuf_iterator<char>(in)), {});
+            in.close();
 
-            unsigned char key[16];
-            memcpy(key, "examplekey123456", 16);
-
+            unsigned char key[16] = { 'e','x','a','m','p','l','e','k','e','y','1','2','3','4','5','6' };
             unsigned char iv[AES_BLOCK_SIZE];
+
+            // Generate a random IV
             if (!RAND_bytes(iv, AES_BLOCK_SIZE)) {
-                MessageBox::Show("IV generation failed.", "Error", MessageBoxButtons::OK, MessageBoxIcon::Error);
+                MessageBox::Show("IV generation failed.");
                 return;
             }
 
-            AES_KEY encryptKey;
-            AES_set_encrypt_key(key, 128, &encryptKey);
+            // IMPORTANT: Make a copy of the original IV to save to file
+            // AES_cfb128_encrypt modifies the IV in place, so we need the original for decryption
+            unsigned char originalIvToSave[AES_BLOCK_SIZE];
+            memcpy(originalIvToSave, iv, AES_BLOCK_SIZE);
 
-            std::vector<unsigned char> encryptedData(fileData.size());
-            int num = 0;
-            AES_cfb128_encrypt(fileData.data(), encryptedData.data(), fileData.size(), &encryptKey, iv, &num, AES_ENCRYPT);
+            AES_KEY encKey;
+            AES_set_encrypt_key(key, 128, &encKey);
+            std::vector<unsigned char> cipher(plain.size());
+            int num = 0; // This 'num' parameter tracks the offset within the current block, initialize to 0 for the start of the stream
 
-            if (SaveEncryptedFileToUserLocation(encryptedData)) {
-                MessageBox::Show("File encrypted and saved!", "Success", MessageBoxButtons::OK, MessageBoxIcon::Information);
-            }
+            // Perform encryption; 'iv' will be modified by this call
+            AES_cfb128_encrypt(plain.data(), cipher.data(), plain.size(), &encKey, iv, &num, AES_ENCRYPT);
 
+            SaveFileDialog^ saveDialog = gcnew SaveFileDialog();
+            saveDialog->Filter = "Encrypted Files (*.enc)|*.enc";
+            if (saveDialog->ShowDialog() != System::Windows::Forms::DialogResult::OK) return;
 
+            std::string savePath = context.marshal_as<std::string>(saveDialog->FileName);
+            std::ofstream out(savePath, std::ios::binary);
+
+            // Write the ORIGINAL IV to the file, followed by the ciphertext
+            out.write(reinterpret_cast<char*>(originalIvToSave), AES_BLOCK_SIZE);
+            out.write(reinterpret_cast<char*>(cipher.data()), cipher.size());
+            out.close();
+
+            MessageBox::Show("File encrypted successfully.");
         }
-
-	private: System::Void exitBtn_Click(System::Object^ sender, System::EventArgs^ e) {
-		this->Close();
-	}
-
     };
 }
